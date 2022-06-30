@@ -1,8 +1,9 @@
 freq_selectone_vars <- function(complete_df, variable_name, subset_df){
   
+  # will set the question name at the very end
   varname <- rlang::as_name(substitute(variable_name))
   
-  # 1. step: define answer options. In case of dummy variables, it's always yes and no
+  # 1. step: retreive all possible answer options
   answer_options <- complete_df %>% 
     distinct({{variable_name}}) %>% 
     drop_na() %>% 
@@ -25,16 +26,18 @@ freq_selectone_vars <- function(complete_df, variable_name, subset_df){
   # add placeholder to look-up table
   lookup_table$answer <- answer_options_vec
   
+  # data_table is the actual data
   data_table <- subset_df %>%
     select(lga_face, ward_face, answer = {{variable_name}}, weights_var) %>%
     drop_na(answer) %>%
-    group_by(lga_face, answer) %>%
+    #group_by(lga_face) %>%
     as_survey_design(ids = ward_face, weights = weights_var) %>% 
     group_by(lga_face, answer) %>% 
     summarise(prop = survey_prop(vartype = c("se", "ci"), level = 0.92, proportion = TRUE),
               total_subgroup = n()) %>% 
     mutate(moe = (prop_upp - prop_low)/2) 
   
+  # combine lookup table with the computed data
   final_table <- left_join(lookup_table, data_table) %>%
     group_by(lga_face) %>% 
     mutate(total_participants = sum(total_subgroup, na.rm = TRUE)) %>% 
@@ -48,3 +51,5 @@ freq_selectone_vars <- function(complete_df, variable_name, subset_df){
   return(final_table)
   
 }
+
+survey::svyciprop

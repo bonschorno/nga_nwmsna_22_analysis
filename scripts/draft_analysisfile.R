@@ -8,13 +8,13 @@ options(scipen = 999)
 
 # load packages and helper function
 library(tidyverse)
-source("freq_numeric_onevar.R")
-source("freq_dummyvars.R")
-source("freq_selectone.R")
+source("scripts/freq_numeric_onevar.R")
+source("scripts/freq_dummyvars.R")
+source("scripts/freq_selectone_vars.R")
 library(srvyr)
 
 # read in cleaned kobo data
-kobo_data <- read_csv("datavalidation_report/pre_clean_data.csv") %>% 
+kobo_data <- read_csv("data/pre_clean_data.csv") %>% 
   mutate(idp = ifelse(hh_displacement_status == "yes", "IDP", "Non-IDP")) %>% 
   drop_na(idp) %>% 
   filter(idp == "Non-IDP")
@@ -38,9 +38,10 @@ kobo_data %>%
   group_by(info_hh_mem) %>% 
   count()
 
-# age_hh_mem and speak_hh_mem NAs in Kobo data
+# age_hh_mem and speak_hh_mem all NAs in Kobo data
 
-freq_selectone_vars(kobo_data, gender, kobo_data)
+freq_selectone_vars(kobo_data, gender, kobo_data) %>% 
+  view
 
 freq_numeric_onevar(kobo_data, age_hoh)
 
@@ -51,7 +52,8 @@ freq_dummyvars(kobo_data, "vunerability_type_hh/")
 freq_dummyvars(kobo_data, "difficulty_type_hh/")
 
 freq_selectone_vars(kobo_data, seeing_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/seeing` == 1))
+                      filter(`difficulty_type_hh/seeing` == 1)) %>% 
+  view
 
 freq_selectone_vars(kobo_data, hearing_extent_difficulty, kobo_data %>% 
                       filter(`difficulty_type_hh/hearing` == 1))
