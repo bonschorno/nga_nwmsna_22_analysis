@@ -1,3 +1,10 @@
+# Comparison of weighted CI calculations in packages
+
+# SO link: https://stackoverflow.com/questions/60636060/how-to-determine-the-confidence-interval-for-a-weighted-population-proportion-wi
+
+
+# Survey-based CI vs CLT-based CI -----------------------------------------
+
 #' Compute survey-based Confidence Intervals
 #'
 #' @param df data frame with at least one column: "Category".
@@ -86,15 +93,17 @@ show_values <- function(values, digits=3) {
 library(survey)
 data(api)
 
+# survey default
 design <- svydesign(ids = ~1, weights = ~pw, data = apistrat)
 CI_survey = ci_survey(apistrat, design)
 show_values(CI_survey)
 
-# Computation of CI using the Central Limit Theorem for non-identically distributed variables
+# survey with CI using the Central Limit Theorem for non-identically distributed variables
 CI_clt = ci_clt(apistrat, ci_level=0.95)
 show_values(CI_clt)
 
-# make srvyr equal to survey------
+
+# Comparison survey and srvyr ---------------------------------------------
 
 #survey
 
@@ -102,13 +111,16 @@ design <- svydesign(ids = ~1, weights = ~pw, data = apistrat)
 design.mean = svymean(~stype, design)
 CI = confint( design.mean )
 # Add the estimated proportions and Delta = Semi-size CI for comparison with the CLT-based results below
-# CI = cbind( p=design.mean, Delta=( CI[,"97.5 %"] - CI[,"2.5 %"] ) / 2, CI )
-# CI
-design.mean
+CI = cbind( p=design.mean, Delta=( CI[,"97.5 %"] - CI[,"2.5 %"] ) / 2, CI )
+CI %>% 
+  as_tibble()
+#design.mean
 
 # srvyr
 
 apistrat %>% 
   as_survey_design(ids = 1, weights = pw) %>% 
   group_by(stype) %>%
-  summarise(prop = survey_mean())
+  summarise(prop = survey_mean(vartype = c("ci"))) %>% 
+  mutate(Delta = (prop_upp-prop_low) /2) %>% 
+  relocate(Delta, .after = prop)

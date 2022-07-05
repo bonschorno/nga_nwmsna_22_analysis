@@ -33,7 +33,7 @@ freq_selectone_vars <- function(complete_df, variable_name, subset_df){
     #group_by(lga_face) %>%
     as_survey_design(ids = ward_face, weights = weights_var) %>% 
     group_by(lga_face, answer) %>% 
-    summarise(prop = survey_prop(vartype = c("se", "ci"), level = 0.92, proportion = TRUE),
+    summarise(prop = survey_prop(vartype = c("ci"), level = 0.92, proportion = TRUE),
               total_subgroup = n()) %>% 
     mutate(moe = (prop_upp - prop_low)/2) 
   
