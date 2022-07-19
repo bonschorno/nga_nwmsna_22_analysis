@@ -1,10 +1,10 @@
-freq_numeric_onevar <- function(df, variable_name){
+idp_freq_numeric_onevar <- function(df, variable_name){
   
   varname <- rlang::as_name(substitute(variable_name))
   
   output_df <- df %>% 
-    select(state_face, lga_face, {{variable_name}}, weights_var) %>% 
-    group_by(lga_face) %>% 
+    select(state_face, {{variable_name}}, weights_var) %>% 
+    group_by(state_face) %>% 
     summarise(mean = Hmisc::wtd.mean({{variable_name}}, weights = weights_var, na.rm = TRUE, normwt = TRUE),
               var.value = Hmisc::wtd.var({{variable_name}}, weights = weights_var, na.rm = TRUE, normwt = TRUE),
               sd.value = sqrt(var.value),
