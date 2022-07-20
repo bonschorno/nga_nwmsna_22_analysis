@@ -26,57 +26,60 @@ weights <- n_vec/sum(n_vec)
 kobo_data$weights_var <- weights
 
 
-# Demographics ------------------------------------------------------------
+# 1. Demographics ------------------------------------------------------------
 
-idp_freq_numeric_onevar(kobo_data, age_respondent)
+demographics_battery <- bind_rows(
+
+idp_freq_numeric_onevar(kobo_data, age_respondent),
 
 # info_hh_mem: How do I make sense of that?
-kobo_data %>% 
-  group_by(info_hh_mem) %>% 
-  count()
+# kobo_data %>% 
+#   group_by(info_hh_mem) %>% 
+#   count()
 
 # age_hh_mem and speak_hh_mem all NAs in Kobo data
 
-idp_freq_selectone_vars(kobo_data, gender, kobo_data)
+idp_freq_selectone_vars(kobo_data, gender, kobo_data),
 
-idp_freq_numeric_onevar(kobo_data, age_hoh)
+idp_freq_numeric_onevar(kobo_data, age_hoh),
 
-idp_freq_selectone_vars(kobo_data, gender_hoh, kobo_data)
+idp_freq_selectone_vars(kobo_data, gender_hoh, kobo_data),
 
-idp_freq_dummyvars(kobo_data, "vunerability_type_hh/") %>% 
-  view
+idp_freq_dummyvars(kobo_data, "vunerability_type_hh/"),
 
-idp_freq_dummyvars(kobo_data, "difficulty_type_hh/")
+idp_freq_dummyvars(kobo_data, "difficulty_type_hh/"),
 
 idp_freq_selectone_vars(kobo_data, seeing_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/seeing` == 1)) %>% 
-  view
+                      filter(`difficulty_type_hh/seeing` == 1)),
 
 idp_freq_selectone_vars(kobo_data, hearing_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/hearing` == 1))
+                      filter(`difficulty_type_hh/hearing` == 1)),
 
 idp_freq_selectone_vars(kobo_data, walking_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/walking` == 1))
+                      filter(`difficulty_type_hh/walking` == 1)),
 
-idp_freq_selectone_vars(kobo_data, remembering_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/remembering` == 1))
+# throwing an error
+# idp_freq_selectone_vars(kobo_data, remembering_extent_difficulty, kobo_data %>% 
+#                       filter(`difficulty_type_hh/remembering` == 1)),
 
 idp_freq_selectone_vars(kobo_data, dressing_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/selfcare` == 1))
+                      filter(`difficulty_type_hh/selfcare` == 1)),
 
-idp_freq_selectone_vars(kobo_data, communication_extent_difficulty, kobo_data %>% 
-                      filter(`difficulty_type_hh/communication` == 1))
+# deactivated because too little data
+# idp_freq_selectone_vars(kobo_data, communication_extent_difficulty, kobo_data %>% 
+#                       filter(`difficulty_type_hh/communication` == 1)),
 
-idp_freq_dummyvars(kobo_data, "hh_situation/")
+idp_freq_dummyvars(kobo_data, "hh_situation/"),
 
 idp_freq_dummyvars(kobo_data, "education_level_hoh/")
 
+)
+
 # Loop for individual household members is still missing
 
+# 2. Movement Dynamics -------------------------------------------------------
 
-# Movement Dynamics -------------------------------------------------------
-
-movement_dynamics_section <- bind_rows(
+movement_dynamics_battery <- bind_rows(
   
   idp_freq_selectone_vars(kobo_data, area_of_origin, kobo_data),
   
@@ -167,9 +170,9 @@ movement_dynamics_section <- bind_rows(
   
 )
 
-# Early Recovery and Livelihoods ----
+# 3. Early Recovery and Livelihoods ----
 
-bind_rows(
+early_recovery_livelihood_battery <- bind_rows(
 
 idp_freq_dummyvars(kobo_data, name_dummy_variables = "source_of_income/"),
 
@@ -216,114 +219,320 @@ idp_freq_dummyvars(kobo_data, name_dummy_variables = "reason_for_debt/")
 
 )
 
-# Food Security and Nutrition ---------------------------------------------
+# 4. Food Security and Nutrition ---------------------------------------------
 
 # Questions from breast_milk_yesterday to feeding_programme not coded so far as they depend on a loop
 
-idp_freq_selectone_vars(kobo_data, prim_source_of_food, kobo_data) %>% 
-  view
+food_security_nutrition_battery <- bind_rows(
 
-idp_freq_selectone_vars(kobo_data, sec_source_of_food, kobo_data)
+idp_freq_selectone_vars(kobo_data, prim_source_of_food, kobo_data),
 
-idp_freq_dummyvars(kobo_data, "diff_or_shocks/")
+idp_freq_selectone_vars(kobo_data, sec_source_of_food, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, shock_reduced_ability, kobo_data %>% filter(`diff_or_shocks/no_shocks` == 0))
+idp_freq_dummyvars(kobo_data, "diff_or_shocks/"),
 
-idp_freq_selectone_vars(kobo_data, shock_impact_ability, kobo_data %>% filter(`diff_or_shocks/no_shocks` == 0))
+idp_freq_selectone_vars(kobo_data, shock_reduced_ability, kobo_data %>% filter(`diff_or_shocks/no_shocks` == 0)),
 
-idp_freq_selectone_vars(kobo_data, hoh_own_farm_animal, kobo_data)
+idp_freq_selectone_vars(kobo_data, shock_impact_ability, kobo_data %>% filter(`diff_or_shocks/no_shocks` == 0)),
 
-idp_freq_selectone_vars(kobo_data, hoh_number_farm_animal, kobo_data %>% filter(hoh_own_farm_animal == "yes"))
+idp_freq_selectone_vars(kobo_data, hoh_own_farm_animal, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, hoh_number_farm_animal, kobo_data %>% filter(hoh_own_farm_animal == "yes")),
 
 idp_freq_dummyvars(kobo_data %>% 
                      filter(hoh_own_farm_animal == "yes" & hoh_number_farm_animal %in% c("minor_decrease", "major_decrease")), 
-                   "hoh_livestock_decrease/")
+                   "hoh_livestock_decrease/"),
 
-idp_freq_selectone_vars(kobo_data, land_access_for_cultivation, kobo_data)
+idp_freq_selectone_vars(kobo_data, land_access_for_cultivation, kobo_data),
 
 idp_freq_selectone_vars(kobo_data, reason_for_nonaccess, kobo_data %>% 
-                          filter(land_access_for_cultivation == "no"))
+                          filter(land_access_for_cultivation == "no")),
 
 idp_freq_selectone_vars(kobo_data, planting_coming_season, kobo_data %>% 
-                          filter(land_access_for_cultivation == "yes"))
+                          filter(land_access_for_cultivation == "yes")),
 
 idp_freq_selectone_vars(kobo_data, reason_for_not_planting, kobo_data %>% 
                           filter(land_access_for_cultivation == "yes",
-                                 planting_coming_season == "no"))
+                                 planting_coming_season == "no")),
 
-idp_freq_selectone_vars(kobo_data, food_of_anykind, kobo_data)
+idp_freq_selectone_vars(kobo_data, food_of_anykind, kobo_data),
 
 idp_freq_selectone_vars(kobo_data, often_eat_nothing, kobo_data %>% 
                           filter(food_of_anykind == "yes"))
 
+)
 
-# Health ------------------------------------------------------------------
+# 5. Health ------------------------------------------------------------------
+
+health_battery <- bind_rows(
 
 # child_recieve_vaccination and many_times_recieve missing due to loop
 
+idp_freq_selectone_vars(kobo_data, nearest_health_care, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, nearest_health_care, kobo_data)
+idp_freq_selectone_vars(kobo_data, nearest_health_care_children, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, nearest_health_care_children, kobo_data)
+idp_freq_selectone_vars(kobo_data, nearest_health_care_adult, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, nearest_health_care_adult, kobo_data)
-
-idp_freq_selectone_vars(kobo_data, current_location_healthcare, kobo_data)
+idp_freq_selectone_vars(kobo_data, current_location_healthcare, kobo_data),
 
 # again, a lot of variables missing due to loop
 
-idp_freq_selectone_vars(kobo_data, heard_of_covid, kobo_data) %>% 
-  view
+idp_freq_selectone_vars(kobo_data, heard_of_covid, kobo_data),
 
 idp_freq_dummyvars(kobo_data %>% filter(heard_of_covid == "yes"), 
-                  name_dummy_variables = "covid_action_taken/")
+                  name_dummy_variables = "covid_action_taken/"),
 
 idp_freq_dummyvars(kobo_data %>% filter(heard_of_covid == "yes"), 
-                   name_dummy_variables = "mem_with_covid/")
+                   name_dummy_variables = "mem_with_covid/"),
 
 idp_freq_selectone_vars(kobo_data, covid_vaccinne_availability, kobo_data %>% 
-                     filter(heard_of_covid == "yes"))
+                     filter(heard_of_covid == "yes")),
 
 idp_freq_selectone_vars(kobo_data, adult_take_vaccine, kobo_data %>% 
                           filter(heard_of_covid == "yes",
                                  covid_vaccinne_availability == "yes"))
 
+)
 
+# 6. WASH --------------------------------------------------------------------
 
-# WASH --------------------------------------------------------------------
+wash_battery <- bind_rows(
 
-idp_freq_numeric_onevar(kobo_data, water_used_day)
+idp_freq_numeric_onevar(kobo_data, water_used_day),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "main_source_water/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "main_source_water/"),
 
-idp_freq_selectone_vars(kobo_data, time_taken_to_fetch, kobo_data)
+idp_freq_selectone_vars(kobo_data, time_taken_to_fetch, kobo_data),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "enough_water_needs/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "enough_water_needs/"),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "problems_water_access/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "problems_water_access/"),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "cope_lack_water/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "cope_lack_water/"),
 
-idp_freq_selectone_vars(kobo_data, sanitation_facility_hh, kobo_data)
+idp_freq_selectone_vars(kobo_data, sanitation_facility_hh, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, share_sanitation_facility, kobo_data)
+idp_freq_selectone_vars(kobo_data, share_sanitation_facility, kobo_data),
 
 idp_freq_numeric_onevar(kobo_data %>% 
-                          filter(share_sanitation_facility == "yes"), number_hh_share_facility)
+                          filter(share_sanitation_facility == "yes"), number_hh_share_facility),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "latrine_fautures_hh/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "latrine_fautures_hh/"),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "problems_sanitation_facicility/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "problems_sanitation_facicility/"),
 
-idp_freq_dummyvars(kobo_data, name_dummy_variables = "adaptation_to_sanitation/")
+idp_freq_dummyvars(kobo_data, name_dummy_variables = "adaptation_to_sanitation/"),
 
-idp_freq_selectone_vars(kobo_data, traces_dead_animals, kobo_data)
+idp_freq_selectone_vars(kobo_data, traces_dead_animals, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, soap_in_hh, kobo_data)
+idp_freq_selectone_vars(kobo_data, soap_in_hh, kobo_data),
 
-idp_freq_selectone_vars(kobo_data, handwashing_facility, kobo_data)
+idp_freq_selectone_vars(kobo_data, handwashing_facility, kobo_data),
 
 idp_freq_dummyvars(kobo_data, name_dummy_variables = "lack_of_hygiene_items/")
 
 # menstrual questions missing due to loop
+
+)
+
+
+# 7. Shelter/NFI -------------------------------------------------------------
+
+shelter_battery <- bind_rows(
+
+idp_freq_selectone_vars(kobo_data, type_of_shelter, kobo_data),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(!is.na(shelter_damages_defects)), 
+                   name_dummy_variables = "shelter_damages_defects/"), 
+
+idp_freq_dummyvars(kobo_data, "shelter_enclosure_issues/"),
+
+idp_freq_dummyvars(kobo_data, "issues_in_shelter/"),
+
+idp_freq_selectone_vars(kobo_data, occupancy_arrangement_currently, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, documentation_prove_occupancy, kobo_data),
+
+idp_freq_dummyvars(kobo_data, "problems_relates_housing/"),
+
+idp_freq_dummyvars(kobo_data, "personal_items_needs/"),
+
+idp_freq_dummyvars(kobo_data, "general_items_needs/"),
+
+idp_freq_selectone_vars(kobo_data, source_cooking_fuel, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, main_source_electricity, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, hours_of_electricity, kobo_data)
+
+)
+
+
+# 8. Protection --------------------------------------------------------------
+
+protection_battery <- bind_rows(
+
+idp_freq_selectone_vars(kobo_data, members_affected_security, kobo_data),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(members_affected_security == "yes"), "nature_safety_incident/"),
+
+
+idp_freq_numeric_onevar(kobo_data %>% 
+                          filter(members_affected_security == "yes"), hh_members_affected_security),
+
+
+idp_freq_selectone_vars(kobo_data, damage_stolen_property, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, child_protection_services, kobo_data),
+
+# idp_freq_selectone_vars(kobo_data, over_18_signs_distress, kobo_data) missing due to loop
+
+idp_freq_selectone_vars(kobo_data, harm_physical_threaths, kobo_data),
+
+idp_freq_dummyvars(kobo_data, "access_law_enforement_authorities/"),
+
+idp_freq_selectone_vars(kobo_data, hh_passport_id, kobo_data),
+
+idp_freq_numeric_onevar(kobo_data, other_missing_id),
+
+idp_freq_selectone_vars(kobo_data, members_birth_certificate, kobo_data),
+
+idp_freq_numeric_onevar(kobo_data, missing_birth_certificate),
+
+idp_freq_numeric_onevar(kobo_data, children_working)
+
+#under_18_employment missing due to loop
+
+)
+
+
+# 9. Education ------------------------------------------------------------
+
+education_battery <- bind_rows(
+
+# filtering conditions not applied yet due to loop
+
+idp_freq_dummyvars(kobo_data, "children_access_learning_materials/"),
+
+idp_freq_selectone_vars(kobo_data, protection_incident_school, kobo_data),
+
+idp_freq_numeric_onevar(kobo_data, sum_school_age_boys),
+
+idp_freq_numeric_onevar(kobo_data, sum_school_age_girls),
+
+idp_freq_selectone_vars(kobo_data, children_stop_schooling, kobo_data),
+
+idp_freq_dummyvars(kobo_data, "barriers_boys_faced/"),
+
+idp_freq_dummyvars(kobo_data, "barriers_girls_faced/"),
+
+idp_freq_dummyvars(kobo_data, "support_regular_learning/"),
+
+idp_freq_dummyvars(kobo_data, "support_home_learning/")
+
+)
+
+
+# 10. AAP & Communication -------------------------------------------------
+
+time_period_assistance <- c("6mo_to_year", "last_6_months", "last_30_days", "above_year")
+
+aap_communication_battery <- bind_rows(
+
+idp_freq_selectone_vars(kobo_data, assistance_received_yn, kobo_data),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(assistance_received_yn %in% time_period_assistance), "hh_assitance_recieved/"),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(!is.na(hh_recieved_assistance_from)), "hh_recieved_assistance_from/"),
+
+# didn't want to comment again on this issue after all the progress was lost
+
+idp_freq_selectone_vars(kobo_data, satisfied_with_assistance, 
+                        kobo_data %>% filter(assistance_received_yn %in% time_period_assistance)),
+
+idp_freq_dummyvars(kobo_data %>% filter(satisfied_with_assistance == "no"), "why_not_satisfied_assistance/"),
+
+idp_freq_selectone_vars(kobo_data, feedback_from_provider, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, hh_recieved_response, kobo_data %>% filter(feedback_from_provider == "yes")),
+
+idp_freq_selectone_vars(kobo_data, hh_taken_consideration, kobo_data %>% filter(feedback_from_provider == "yes")),
+
+idp_freq_dummyvars(kobo_data, "agencies_about_assistance/"),
+
+idp_freq_dummyvars(kobo_data, "barriers_humanitarian_assistance/"),
+
+idp_freq_selectone_vars(kobo_data, assistance_like_recieve, kobo_data),
+
+idp_freq_dummyvars(kobo_data, "type_assistance_futrure/"),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(str_detect(type_assistance_futrure, "food|nfi|shelter_materials|sanitation") == TRUE),
+                   "prefers_material_assistance/"),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(str_detect(type_assistance_futrure, "cash_prep|cash_mobile|physical_cash") == TRUE),
+                   "prefers_cash_assistance/"),
+
+idp_freq_dummyvars(kobo_data %>% 
+                     filter(str_detect(type_assistance_futrure, "vouchers") == TRUE),
+                   "prefers_vouchers_assistance/"),
+
+idp_freq_dummyvars(kobo_data, "info_asssitance_providers/"),
+
+idp_freq_dummyvars(kobo_data, "prefer_info_assistance/"),
+
+idp_freq_dummyvars(kobo_data, "prefer_info_means/"),
+
+idp_freq_selectone_vars(kobo_data, main_language_home, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, literate_speak_write, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, which_language, kobo_data %>% filter(literate_speak_write == "yes")),
+
+idp_freq_selectone_vars(kobo_data, mainly_language_service_providers, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, preferred_language_service_providers, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, written_info_language, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, preferred_language_spoken_info, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, hh_first_priority_need, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, hh_second_priority_need, kobo_data),
+
+idp_freq_selectone_vars(kobo_data, hh_third_priority_need, kobo_data)
+
+)
+
+
+# Complete IDP dataset ----------------------------------------------------
+
+idp_dataset <- bind_rows(demographics_battery,
+          movement_dynamics_battery,
+          early_recovery_livelihood_battery,
+          food_security_nutrition_battery,
+          health_battery,
+          wash_battery,
+          shelter_battery,
+          protection_battery,
+          education_battery,
+          aap_communication_battery)
+
+rm(demographics_battery,
+   movement_dynamics_battery,
+   early_recovery_livelihood_battery,
+   food_security_nutrition_battery,
+   health_battery,
+   wash_battery,
+   shelter_battery,
+   protection_battery,
+   education_battery,
+   aap_communication_battery)
 
