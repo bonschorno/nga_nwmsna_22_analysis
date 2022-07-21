@@ -33,9 +33,9 @@ idp_freq_selectone_vars <- function(complete_df, variable_name, subset_df){
     #group_by(lga_face) %>%
     as_survey_design(ids = ward_face, weights = weights_var) %>% 
     group_by(state_face, answer) %>% 
-    summarise(prop = survey_prop(vartype = c("ci"), level = 0.92, proportion = TRUE),
+    summarise(value = survey_prop(vartype = c("ci"), level = 0.92, proportion = TRUE),
               total_subgroup = n()) %>% 
-    mutate(moe = (prop_upp - prop_low)/2) 
+    mutate(moe = (value_upp - value_low)/2) 
   
   # combine lookup table with the computed data
   final_table <- left_join(lookup_table, data_table) %>%
@@ -43,10 +43,12 @@ idp_freq_selectone_vars <- function(complete_df, variable_name, subset_df){
     mutate(total_participants = sum(total_subgroup, na.rm = TRUE)) %>% 
     mutate(across(.cols = where(is.numeric), .fns =  ~ round(.x, digits = 2))) %>% 
     ungroup() %>% 
-    mutate(across(c(prop:moe), ~ if_else(total_participants > 0 & is.na(moe), 0, .x))) %>% 
-    relocate(moe, .after = prop_upp) %>% 
+    mutate(across(c(value:moe), ~ if_else(total_participants > 0 & is.na(moe), 0, .x))) %>% 
+    relocate(moe, .after = value_upp) %>% 
     mutate(question_name = varname) %>% 
-    relocate(question_name) 
+    relocate(question_name) %>% 
+    rename(ci_upp = value_upp,
+         ci_low = value_low)
   
   return(final_table)
   

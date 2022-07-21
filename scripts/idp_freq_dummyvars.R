@@ -29,9 +29,9 @@ idp_freq_dummyvars <- function(df, name_dummy_variables){
     mutate(answer = ifelse(value == 1, "yes", "no")) %>% 
     as_survey_design(ids = ward_face, weights = weights_var) %>% 
     group_by(state_face, question_name, answer) %>% 
-    summarise(prop = survey_prop(vartype = c("ci"), level = 0.92, proportion = TRUE),
+    summarise(value = survey_prop(vartype = c("ci"), level = 0.92, proportion = TRUE),
               total_subgroup = n()) %>% 
-    mutate(moe = (prop_upp - prop_low)/2)
+    mutate(moe = (value_upp - value_low)/2)
   
   # 4. step: data cleaning
   final_table <- left_join(lookup_table, data_table_srvyr) %>% 
@@ -39,8 +39,10 @@ idp_freq_dummyvars <- function(df, name_dummy_variables){
     group_by(state_face, question_name) %>% 
     mutate(total_participants = sum(total_subgroup)) %>% 
     mutate(across(.cols = where(is.numeric), .fns =  ~ round(.x, digits = 2))) %>% 
-    relocate(moe, .after = prop_upp) %>% 
-    relocate(question_name)
+    relocate(moe, .after = value_upp) %>% 
+    relocate(question_name) %>% 
+    rename(ci_upp = value_upp,
+           ci_low = value_low)
   
   return(final_table)
   

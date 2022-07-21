@@ -536,3 +536,25 @@ rm(demographics_battery,
    education_battery,
    aap_communication_battery)
 
+# change column order
+col_order <- c("question_name", "answer", "state_face", "value",
+               "ci_low", "ci_upp", "moe", "total_subgroup", "total_participants")
+
+idp_dataset <- idp_dataset[, col_order]
+
+idp_dataset <- idp_dataset %>% 
+  mutate(answer = ifelse(is.na(answer), "numeric", answer))
+
+write_csv(idp_dataset, "output/final_dataset_idp.csv")
+
+
+# To do -----------------------------------------------------------------
+
+# add battery names
+# clean answers and figure out a solution how to feed in the cleaned answers
+
+
+length(unique(idp_dataset$answer))
+
+unique(idp_dataset$answer)
+
