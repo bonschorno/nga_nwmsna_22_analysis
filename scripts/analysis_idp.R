@@ -75,6 +75,8 @@ idp_freq_dummyvars(kobo_data, "education_level_hoh/")
 
 )
 
+demographics_battery$battery <- "Demographics"
+
 # Loop for individual household members is still missing
 
 # 2. Movement Dynamics -------------------------------------------------------
@@ -170,6 +172,8 @@ movement_dynamics_battery <- bind_rows(
   
 )
 
+movement_dynamics_battery$battery <- "Movement Dynamics"
+
 # 3. Early Recovery and Livelihoods ----
 
 early_recovery_livelihood_battery <- bind_rows(
@@ -219,6 +223,8 @@ idp_freq_dummyvars(kobo_data, name_dummy_variables = "reason_for_debt/")
 
 )
 
+early_recovery_livelihood_battery$battery <- "Early Recovery and Livelihood"
+
 # 4. Food Security and Nutrition ---------------------------------------------
 
 # Questions from breast_milk_yesterday to feeding_programme not coded so far as they depend on a loop
@@ -262,6 +268,8 @@ idp_freq_selectone_vars(kobo_data, often_eat_nothing, kobo_data %>%
 
 )
 
+food_security_nutrition_battery$battery <- "Food Security and Nutrition"
+
 # 5. Health ------------------------------------------------------------------
 
 health_battery <- bind_rows(
@@ -294,6 +302,8 @@ idp_freq_selectone_vars(kobo_data, adult_take_vaccine, kobo_data %>%
                                  covid_vaccinne_availability == "yes"))
 
 )
+
+health_battery$battery <- "Health"
 
 # 6. WASH --------------------------------------------------------------------
 
@@ -336,6 +346,8 @@ idp_freq_dummyvars(kobo_data, name_dummy_variables = "lack_of_hygiene_items/")
 
 )
 
+wash_battery$battery <- "WASH"
+
 
 # 7. Shelter/NFI -------------------------------------------------------------
 
@@ -369,6 +381,7 @@ idp_freq_selectone_vars(kobo_data, hours_of_electricity, kobo_data)
 
 )
 
+shelter_battery$battery <- "Shelter"
 
 # 8. Protection --------------------------------------------------------------
 
@@ -408,6 +421,7 @@ idp_freq_numeric_onevar(kobo_data, children_working)
 
 )
 
+protection_battery$battery <- "Protection"
 
 # 9. Education ------------------------------------------------------------
 
@@ -434,6 +448,8 @@ idp_freq_dummyvars(kobo_data, "support_regular_learning/"),
 idp_freq_dummyvars(kobo_data, "support_home_learning/")
 
 )
+
+education_battery$battery <- "Education"
 
 
 # 10. AAP & Communication -------------------------------------------------
@@ -511,6 +527,8 @@ idp_freq_selectone_vars(kobo_data, hh_third_priority_need, kobo_data)
 
 )
 
+aap_communication_battery$battery <- "AAP and Communication"
+
 
 # Complete IDP dataset ----------------------------------------------------
 
@@ -538,7 +556,7 @@ rm(demographics_battery,
 
 # change column order
 col_order <- c("question_name", "answer", "state_face", "value",
-               "ci_low", "ci_upp", "moe", "total_subgroup", "total_participants")
+               "ci_low", "ci_upp", "moe", "total_subgroup", "total_participants", "battery")
 
 idp_dataset <- idp_dataset[, col_order]
 
@@ -546,15 +564,3 @@ idp_dataset <- idp_dataset %>%
   mutate(answer = ifelse(is.na(answer), "numeric", answer))
 
 write_csv(idp_dataset, "output/final_dataset_idp.csv")
-
-
-# To do -----------------------------------------------------------------
-
-# add battery names
-# clean answers and figure out a solution how to feed in the cleaned answers
-
-
-length(unique(idp_dataset$answer))
-
-unique(idp_dataset$answer)
-
